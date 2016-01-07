@@ -55,4 +55,14 @@ There are some important additional commands we need such as
 bada test
 ```
 
-So you can invoke your lambda function over assertions and datasets. This is coming in next version (january 2016)
+So you can invoke your lambda function over assertions and datasets. This is coming in next version (january 2016). Also coming is 
+
+```
+bada bing
+```
+
+Which will both deploy and invoke your function over your test cases.
+
+Committing
+======================
+Email Tom (thayden@gmail.com) if you have questions or submit a pull request to submit more. You might want to email me, first or submit an issue because this is a project under rapid development.
