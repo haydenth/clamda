@@ -45,3 +45,14 @@ bada deploy
 ```
 
 It will zip up your new code, upload the package to AWS Lambda.
+
+Coming Soon
+=====================
+
+There are some important additional commands we need such as 
+
+```
+bada test
+```
+
+So you can invoke your lambda function over assertions and datasets. This is coming in next version (january 2016)
