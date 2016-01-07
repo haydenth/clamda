@@ -38,6 +38,23 @@ bada init
 
 The tool will immediately ask you some questions to populate an AWS Lambda job such as the name of the job, the permissions role, and a the timeout for the job. It will create a stub job and upload it to your AWS lambda account (you can verify by logging into the UI)
 
+To invoke a function, just call the invoke method with some json on the command line. You'll have to escape any special characters if you call it like this.
+
+```
+bada invoke '{"asdf": "bada"}'
+```
+
+and it will give you some output:
+```
+----- LOGS -------
+START RequestId: 37ceb72c-b560-11e5-ab9c-c775d795d19a Version: $LATEST
+END RequestId: 37ceb72c-b560-11e5-ab9c-c775d795d19a
+REPORT RequestId: 37ceb72c-b560-11e5-ab9c-c775d795d19a  Duration: 17.53 ms  Billed Duration: 100 ms   Memory Size: 128 MB Max Memory Used: 9 MB
+
+----- RESULT -----
+{"asdf": "adab"}
+```
+
 When you're ready to deploy some new code, simply run
 
 ```

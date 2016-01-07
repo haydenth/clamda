@@ -113,7 +113,6 @@ def invoke(configuration, text):
   print base64_logs
   print "----- RESULT ----- "
   print inv['Payload'].read()
-  print "------------------ "
 
 def main():
   configuration = get_configuration()
