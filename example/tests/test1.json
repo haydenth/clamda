@@ -1,0 +1,4 @@
+{
+ 'input': {'asdf': '1234', 'test': 'bob'},
+ 'output': {'asdf': '4321'}
+}

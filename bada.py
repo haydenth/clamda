@@ -11,6 +11,7 @@ import os
 import zipfile
 import StringIO
 import sys
+import base64
 
 DOTFILE = '.bada'
 DEFAULT_JOB = '''
@@ -87,6 +88,7 @@ def make_new_lambda_function():
     fh.write(json.dumps(bada))
 
 def get_configuration():
+  ''' open the dotfile in the folder and grab the configuration out of it '''
   if os.path.exists(DOTFILE):
     with open(DOTFILE, 'r') as fh:
       contents = fh.read()
@@ -95,9 +97,26 @@ def get_configuration():
   else:
     return False
 
+def run_tests():
+  ''' open up the tests/ folder, find any assertions in there and 
+  execute them by calling the invoke method and comparing the output
+  to expected output. note that a test will consist of an input json
+  and then an output json '''
+
+def invoke(configuration, text):
+  ''' just invoke the function with some text '''
+  inv = client.invoke(FunctionName=configuration['arn'],
+                      LogType='Tail',
+                      Payload=text)
+  base64_logs = base64.b64decode(inv['LogResult'])
+  print "----- LOGS ------- "
+  print base64_logs
+  print "----- RESULT ----- "
+  print inv['Payload'].read()
+  print "------------------ "
+
 def main():
   configuration = get_configuration()
-
   try:
     argument = sys.argv[1]
   except:
@@ -110,7 +129,10 @@ def main():
                                 ZipFile=zip_full_directory())
   elif configuration is not False and argument in ('test'):
     print 'Running tests for lambda job'
-
+    run_tests(configuration)
+  elif configuration is not False and argument in ('invoke'):
+    invoke_text = sys.argv[2]
+    invoke(configuration, invoke_text)
   elif configuration is False and argument in ('init'):
     print 'initializing new lambda job'
     make_new_lambda_function()
@@ -121,6 +143,7 @@ def help():
   print '''Available command line arguments 
               bada init - initialize new lambda job
               bada deploy - zip & deploy current job
+              bada invoke "{json}" - invoke the function with some json
               bada test - run tests over assertions in tests/ folder
               bada bing - test, zip and deploy job'''
 
