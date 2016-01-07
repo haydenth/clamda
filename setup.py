@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='bada',
-    version='0.0.1',
+    version='0.0.2',
     description='Work seamlessly with AWS Lambda Jobs',
     url='https://github.com/haydenth/bada',
     license='MIT',
