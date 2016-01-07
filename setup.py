@@ -11,7 +11,7 @@ setup(
     py_modules=['bada'],
     entry_points={
         'console_scripts': [
-            'bada = bada:main'
+            'bada = bada.bada:main'
         ]
     },
     include_package_data=True,
