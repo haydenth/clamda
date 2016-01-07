@@ -1,7 +1,7 @@
 # bada
 command line tool for working with AWS lambda jobs more efficiently. It's designed to work quickly on the command line with AWS lambda jobs, especially where your workflow is something like:
 
-* Write job
+* Write job in its own folder
 * Upload to Lambda, Test
 * Compare test results to expected, iterate
 
@@ -16,5 +16,17 @@ This library uses boto3, which uses system-wide configuration variables, so they
 export AWS_SECRET_ACCESS_KEY=<YOUR SECRET KEY>
 export AWS_ACCESS_KEY_ID=<YOUR ACCESS KEY>
 export AWS_DEFAULT_REGION=us-east-1
+```
+
+.bada files
+==================
+When you run the tool, it will create a .bada file in the directory that holds the json configuration for the job.
+
+Running
+===============
+To run the tool, just go on the command line in a new directory and type:
+
+```
+bada
 ```
 

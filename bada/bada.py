@@ -86,23 +86,28 @@ def make_new_lambda_function():
   with open(DOTFILE, 'w') as fh:
     fh.write(json.dumps(bada))
 
-if os.path.exists(DOTFILE):
-  print 'dotfile found, looking at command line arguments ...'
+def main():
 
-  try:
-    argument = sys.argv[1]
-  except:
-    print "Command line option required: deploy, test"
-    sys.exit()
+  if os.path.exists(DOTFILE):
+    print 'dotfile found, looking at command line arguments ...'
 
-  with open(DOTFILE, 'r') as fh:
-    contents = fh.read()
-  configuration = json.loads(contents)
+    try:
+      argument = sys.argv[1]
+    except:
+      print "Command line option required: deploy, test"
+      sys.exit()
 
-  if argument in ('deploy', 'bing'):
-    print 'deploying code for job %s' % configuration['name']
-    client.update_function_code(FunctionName=configuration['arn'],
-                                ZipFile=zip_full_directory())
+    with open(DOTFILE, 'r') as fh:
+      contents = fh.read()
+    configuration = json.loads(contents)
 
-else:
-  make_new_lambda_function()
+    if argument in ('deploy', 'bing'):
+      print 'deploying code for job %s' % configuration['name']
+      client.update_function_code(FunctionName=configuration['arn'],
+                                  ZipFile=zip_full_directory())
+
+  else:
+    make_new_lambda_function()
+
+if __name__ == '__main__':  
+  main()
