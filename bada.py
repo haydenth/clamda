@@ -119,9 +119,10 @@ def main():
 
 def help():
   print '''Available command line arguments 
-              bada init
-              bada deploy
-              bada bing'''
+              bada init - initialize new lambda job
+              bada deploy - zip & deploy current job
+              bada test - run tests over assertions in tests/ folder
+              bada bing - test, zip and deploy job'''
 
 if __name__ == '__main__':  
   main()
