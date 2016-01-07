@@ -36,3 +36,12 @@ To run the tool, just go on the command line in a new directory and type:
 bada
 ```
 
+The tool will immediately ask you some questions to populate an AWS Lambda job such as the name of the job, the permissions role, and a the timeout for the job. It will create a stub job and upload it to your AWS lambda account (you can verify by logging into the UI)
+
+When you're ready to deploy some new code, simply run
+
+```
+bada deploy
+```
+
+It will zip up your new code, upload the package to AWS Lambda.
