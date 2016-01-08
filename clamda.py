@@ -13,6 +13,7 @@ the dev workflow better
 
 ie tests
 '''
+import select
 import boto3
 import json
 import os
@@ -138,7 +139,10 @@ def main():
     print 'Running tests for lambda job'
     run_tests(configuration)
   elif configuration is not False and argument in ('invoke'):
-    invoke_text = sys.argv[2]
+    if select.select([sys.stdin,],[],[],0.0)[0]:
+      invoke_text = sys.stdin
+    else:
+      invoke_text = sys.argv[2]
     invoke(configuration, invoke_text)
   elif configuration is False and argument in ('init'):
     print 'initializing new lambda job'

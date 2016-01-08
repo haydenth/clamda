@@ -55,6 +55,12 @@ REPORT RequestId: 37ceb72c-b560-11e5-ab9c-c775d795d19a  Duration: 17.53 ms  Bill
 {"asdf": "adab"}
 ```
 
+Additionally, you can also call the invoke method by pushing in some json via command line STDIN. For instance, the below command will give you the same query output as above.
+
+```
+clamda invoke < text.txt
+````
+
 When you're ready to deploy some new code, simply run
 
 ```
