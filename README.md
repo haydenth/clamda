@@ -1,4 +1,4 @@
-# bada
+# clamda
 command line tool for working with AWS lambda jobs more efficiently. It's designed to work quickly on the command line with AWS lambda jobs, especially where your workflow is something like:
 
 * Write job in its own folder
@@ -21,19 +21,19 @@ export AWS_DEFAULT_REGION=us-east-1
 To install the package, just 
 
 ```
-pip install bada
+pip install clamda
 ```
 
-.bada files
+.clamda files
 ==================
-When you run the tool, it will create a .bada file in the directory that holds the json configuration for the job.
+When you run the tool, it will create a .clamda file in the directory that holds the json configuration for the job.
 
 Running
 ===============
 To run the tool, just go on the command line in a new directory and type:
 
 ```
-bada init
+clamda init
 ```
 
 The tool will immediately ask you some questions to populate an AWS Lambda job such as the name of the job, the permissions role, and a the timeout for the job. It will create a stub job and upload it to your AWS lambda account (you can verify by logging into the UI)
@@ -41,7 +41,7 @@ The tool will immediately ask you some questions to populate an AWS Lambda job s
 To invoke a function, just call the invoke method with some json on the command line. You'll have to escape any special characters if you call it like this.
 
 ```
-bada invoke '{"asdf": "bada"}'
+clamda invoke '{"asdf": "clamda"}'
 ```
 
 and it will give you some output:
@@ -58,7 +58,7 @@ REPORT RequestId: 37ceb72c-b560-11e5-ab9c-c775d795d19a  Duration: 17.53 ms  Bill
 When you're ready to deploy some new code, simply run
 
 ```
-bada deploy
+clamda deploy
 ```
 
 It will zip up your new code, upload the package to AWS Lambda.
@@ -69,13 +69,13 @@ Coming Soon
 There are some important additional commands we need such as 
 
 ```
-bada test
+clamda test
 ```
 
 So you can invoke your lambda function over assertions and datasets. This is coming in next version (january 2016). Also coming is 
 
 ```
-bada bing
+clamda all
 ```
 
 Which will both deploy and invoke your function over your test cases.
@@ -83,3 +83,7 @@ Which will both deploy and invoke your function over your test cases.
 Committing
 ======================
 Email Tom (thayden@gmail.com) if you have questions or submit a pull request to submit more. You might want to email me, first or submit an issue because this is a project under rapid development.
+
+Thanks
+======================
+Mike Saunders (michael.saunders) is responsible for the clever name

@@ -1,5 +1,5 @@
 '''
-bada is stupid a command line tool
+clamda is stupid a command line tool
 for working with aws lambda and making
 the dev workflow better 
 
@@ -13,7 +13,7 @@ import StringIO
 import sys
 import base64
 
-DOTFILE = '.bada'
+DOTFILE = '.clamda'
 DEFAULT_JOB = '''
 
 def handler(event, context):
@@ -81,11 +81,11 @@ def make_new_lambda_function():
                                   Code={'ZipFile': zip_full_directory()},
                                   Description=description)
 
-  print 'writing out the .bada file'
-  bada = {'name': job_name,
-          'arn': result['FunctionArn']}
+  print 'writing out the .clamda file'
+  clamda = {'name': job_name,
+            'arn': result['FunctionArn']}
   with open(DOTFILE, 'w') as fh:
-    fh.write(json.dumps(bada))
+    fh.write(json.dumps(clamda))
 
 def get_configuration():
   ''' open the dotfile in the folder and grab the configuration out of it '''
@@ -122,7 +122,7 @@ def main():
     help()
     sys.exit()
 
-  if configuration is not False and argument in ('deploy', 'bing'):
+  if configuration is not False and argument in ('deploy'):
     print 'deploying code for job %s' % configuration['name']
     client.update_function_code(FunctionName=configuration['arn'],
                                 ZipFile=zip_full_directory())
@@ -140,11 +140,10 @@ def main():
 
 def help():
   print '''Available command line arguments 
-              bada init - initialize new lambda job
-              bada deploy - zip & deploy current job
-              bada invoke "{json}" - invoke the function with some json
-              bada test - run tests over assertions in tests/ folder
-              bada bing - test, zip and deploy job'''
+              clamda init - initialize new lambda job
+              clamda deploy - zip & deploy current job
+              clamda invoke "{json}" - invoke the function with some json
+              clamda test - run tests over assertions in tests/ folder'''
 
 if __name__ == '__main__':  
   main()

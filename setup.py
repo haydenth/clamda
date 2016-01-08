@@ -1,17 +1,17 @@
 from setuptools import setup
 
 setup(
-    name='bada',
+    name='clamda',
     version='0.0.4',
     description='Work seamlessly with AWS Lambda Jobs',
-    url='https://github.com/haydenth/bada',
+    url='https://github.com/haydenth/clamda',
     license='MIT',
     author='Tom Hayden',
     author_email='thayden@gmail.com',
-    py_modules=['bada'],
+    py_modules=['clamda'],
     entry_points={
         'console_scripts': [
-            'bada = bada:main'
+            'clamda = clamda:main'
         ]
     },
     include_package_data=True,
