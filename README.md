@@ -86,4 +86,4 @@ Email Tom (thayden@gmail.com) if you have questions or submit a pull request to 
 
 Thanks
 ======================
-Mike Saunders (michael.saunders) is responsible for the clever name
+Mike Saunders (@saunders3000) is responsible for the clever name
