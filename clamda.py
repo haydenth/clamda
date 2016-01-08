@@ -4,8 +4,8 @@ for working with aws lambda and making
 the dev workflow better 
 
        _.---._
-   .:":_'-.-`_:":.
-  :` (o)-.-(o)'_.':
+   .:":(o)'(o)":.
+  :` _'_-.-._'_.':
   '`.`._`-.-'_.'.''
    `.`-.`-.-'.-'.'
     `._`-.-'_.'
