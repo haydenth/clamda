@@ -67,7 +67,19 @@ When you're ready to deploy some new code, simply run
 clamda deploy
 ```
 
-It will zip up your new code, upload the package to AWS Lambda.
+It will zip up your new code, upload the package to AWS Lambda. If you'd like to both deploy and invoke your function, you can call
+
+Debugging & Working with Logs
+====================
+By default, when you create a new lambda job, amazon will create a corresponding CloudwatchLog entry for it where all your production logs will go. Working with their UI is a little painful, so clamda has some functions which will hopefully make this process easier to debug and find errors in live data:
+
+To run a cloudwatch search for "error" in your logs:
+
+```
+clamda errors
+```
+
+If there are errors, it will print them to the terminal. If not, it will just report nothing.
 
 Coming Soon
 =====================
