@@ -123,6 +123,22 @@ def invoke(configuration, text):
   print "----- RESULT ----- "
   print inv['Payload'].read()
 
+def find_errors(name):
+  client = boto3.client('logs')
+  
+  log_name = '/aws/lambda/' + name
+  streams = client.describe_log_streams(logGroupName=log_name,
+                                        descending=True,
+                                        orderBy='LastEventTime')
+  all_streams = streams['logStreams']
+  stream_ids = [a['logStreamName'] for a in all_streams]
+  match = client.filter_log_events(logGroupName=log_name,
+                                   logStreamNames=stream_ids,
+                                   filterPattern='Error')
+  for event in match['events']:
+    print '-------ERROR------'
+    print event['message']
+
 def main():
   configuration = get_configuration()
   try:
@@ -144,6 +160,9 @@ def main():
     else:
       invoke_text = sys.argv[2]
     invoke(configuration, invoke_text)
+  elif configuration is not False and argument in ('errors'):
+    print "searching logs for errors"
+    find_errors(configuration['name'])
   elif configuration is False and argument in ('init'):
     print 'initializing new lambda job'
     make_new_lambda_function()
@@ -154,6 +173,7 @@ def help():
   print '''Available command line arguments 
               clamda init - initialize new lambda job
               clamda deploy - zip & deploy current job
+              clamda errors - find errors in cloudwatch logs
               clamda invoke "{json}" - invoke the function with some json
               clamda test - run tests over assertions in tests/ folder'''
 
