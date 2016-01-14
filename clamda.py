@@ -139,6 +139,26 @@ def find_errors(name):
     print '-------ERROR------'
     print event['message']
 
+def tail_logs(name):
+  client = boto3.client('logs')
+
+  log_name = '/aws/lambda/' + name
+  streams = client.describe_log_streams(logGroupName=log_name,
+                                        descending=True,
+                                        orderBy='LastEventTime')
+  all_streams = streams['logStreams']
+  stream_ids = [a['logStreamName'] for a in all_streams]
+  event_count = 0
+  stream_id = stream_ids[0]
+  logs = client.get_log_events(logGroupName=log_name,
+                               logStreamName=stream_id,
+                               startFromHead=False,
+                               limit=1000)
+  events = logs['events']
+  for event in events:
+    event_count += 1
+    print event['message']
+
 def main():
   configuration = get_configuration()
   try:
@@ -163,6 +183,8 @@ def main():
   elif configuration is not False and argument in ('errors'):
     print "searching logs for errors"
     find_errors(configuration['name'])
+  elif configuration is not False and argument in ('tail'):
+    tail_logs(configuration['name'])
   elif configuration is False and argument in ('init'):
     print 'initializing new lambda job'
     make_new_lambda_function()
@@ -174,6 +196,7 @@ def help():
               clamda init - initialize new lambda job
               clamda deploy - zip & deploy current job
               clamda errors - find errors in cloudwatch logs
+              clamda tail - spit out tailed logs from cloudwatch
               clamda invoke "{json}" - invoke the function with some json
               clamda test - run tests over assertions in tests/ folder'''
 
