@@ -14,6 +14,7 @@ the dev workflow better
 ie tests
 '''
 import select
+import datetime
 import boto3
 import json
 import os
@@ -124,20 +125,30 @@ def invoke(configuration, text):
   print inv['Payload'].read()
 
 def find_errors(name):
+  search_logs(name, 'Error')
+  search_logs(name, 'Exception')
+  search_logs(name, 'Timeout')
+  search_logs(name, 'Expiration')
+
+def search_logs(name, filter_pattern):
   client = boto3.client('logs')
   
   log_name = '/aws/lambda/' + name
   streams = client.describe_log_streams(logGroupName=log_name,
-                                        descending=True,
-                                        orderBy='LastEventTime')
+                                        descending=True, orderBy='LastEventTime')
   all_streams = streams['logStreams']
   stream_ids = [a['logStreamName'] for a in all_streams]
   match = client.filter_log_events(logGroupName=log_name,
                                    logStreamNames=stream_ids,
-                                   filterPattern='Error')
+                                   filterPattern=filter_pattern)
   for event in match['events']:
-    print '-------ERROR------'
-    print event['message']
+    timestamp = event['timestamp'] / 1000
+    human_date = datetime.datetime.fromtimestamp(int(timestamp))
+    message = event['message'].strip()
+    print '\t'.join((human_date.strftime('%Y-%m-%d %H:%M:%S'), message))
+
+def find_durations(name):
+  search_logs(name, 'REPORT RequestId')
 
 def tail_logs(name):
   client = boto3.client('logs')
@@ -152,8 +163,7 @@ def tail_logs(name):
   stream_id = stream_ids[0]
   logs = client.get_log_events(logGroupName=log_name,
                                logStreamName=stream_id,
-                               startFromHead=False,
-                               limit=1000)
+                               startFromHead=False)
   events = logs['events']
   for event in events:
     event_count += 1
@@ -183,6 +193,8 @@ def main():
   elif configuration is not False and argument in ('errors'):
     print "searching logs for errors"
     find_errors(configuration['name'])
+  elif configuration is not False and argument in ('durations', 'duration'):
+    find_durations(configuration['name'])
   elif configuration is not False and argument in ('tail'):
     tail_logs(configuration['name'])
   elif configuration is False and argument in ('init'):
@@ -195,6 +207,7 @@ def help():
   print '''Available command line arguments 
               clamda init - initialize new lambda job
               clamda deploy - zip & deploy current job
+              clamda durations - view duration of jobs
               clamda errors - find errors in cloudwatch logs
               clamda tail - spit out tailed logs from cloudwatch
               clamda invoke "{json}" - invoke the function with some json
