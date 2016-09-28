@@ -116,8 +116,8 @@ def run_tests():
 def invoke(configuration, text):
   ''' just invoke the function with some text '''
   inv = client.invoke(FunctionName=configuration['arn'],
-                      LogType='Tail',
-                      Payload=text)
+                     LogType='Tail',
+                     Payload=text)
   base64_logs = base64.b64decode(inv['LogResult'])
   print "----- LOGS ------- "
   print base64_logs
@@ -138,10 +138,24 @@ def search_logs(name, filter_pattern):
                                         descending=True, orderBy='LastEventTime')
   all_streams = streams['logStreams']
   stream_ids = [a['logStreamName'] for a in all_streams]
+  nextToken = True
+
   match = client.filter_log_events(logGroupName=log_name,
                                    logStreamNames=stream_ids,
                                    filterPattern=filter_pattern)
-  for event in match['events']:
+  events = match.get('events')
+  nextToken = match.get('nextToken')
+
+  # more logs to search
+  while nextToken:
+    match = client.filter_log_events(logGroupName=log_name,
+                                     nextToken=nextToken,
+                                     logStreamNames=stream_ids,
+                                     filterPattern=filter_pattern)
+    events = events + match.get('events')
+    nextToken = match.get('nextToken')
+
+  for event in events:
     timestamp = event['timestamp'] / 1000
     human_date = datetime.datetime.fromtimestamp(int(timestamp))
     message = event['message'].strip()
@@ -190,6 +204,9 @@ def main():
     else:
       invoke_text = sys.argv[2]
     invoke(configuration, invoke_text)
+  elif configuration is not False and argument in ('search'):
+    query = sys.argv[2]
+    search_logs(configuration['name'], query)
   elif configuration is not False and argument in ('errors'):
     print "searching logs for errors"
     find_errors(configuration['name'])
@@ -211,6 +228,7 @@ def help():
               clamda errors - find errors in cloudwatch logs
               clamda tail - spit out tailed logs from cloudwatch
               clamda invoke "{json}" - invoke the function with some json
+              clamda search "term" - search the logs for a custom search term
               clamda test - run tests over assertions in tests/ folder'''
 
 if __name__ == '__main__':  
