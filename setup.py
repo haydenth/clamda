@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='clamda',
-    version='0.0.11',
+    version='0.0.14',
     description='Work seamlessly with AWS Lambda Jobs',
     url='https://github.com/haydenth/clamda',
     license='MIT',
