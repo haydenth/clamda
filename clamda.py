@@ -164,6 +164,21 @@ def search_logs(name, filter_pattern):
 def find_durations(name):
   search_logs(name, 'REPORT RequestId')
 
+def list_env_vars(name):
+  resp = client.get_function(FunctionName=name)
+  config = resp['Configuration']
+  env = config.get('Environment')
+  env_vars = env.get('Variables', {})
+  for (k,v) in env_vars.items():
+    print "ENV VARIABLE: %s = %s" % (k,v)
+  return env_vars
+
+def set_env_var(name, key, value):
+  current_vars = list_env_vars(name)
+  current_vars[key] = value
+  client.update_function_configuration(FunctionName=name,
+                                       Environment={'Variables': current_vars})
+
 def tail_logs(name):
   client = boto3.client('logs')
 
@@ -187,6 +202,7 @@ def main():
   configuration = get_configuration()
   try:
     argument = sys.argv[1]
+    addl_arguments = sys.argv[2:]
   except:
     help()
     sys.exit()
@@ -204,6 +220,13 @@ def main():
     else:
       invoke_text = sys.argv[2]
     invoke(configuration, invoke_text)
+  elif configuration is not False and argument in ('lsenv'):
+    list_env_vars(configuration['name'])
+  elif configuration is not False and argument in ('setenv'):
+    print "setting env var "
+    var_key = addl_arguments[0]
+    var_val = addl_arguments[1]
+    set_env_var(configuration['name'], var_key, var_val)
   elif configuration is not False and argument in ('search'):
     query = sys.argv[2]
     search_logs(configuration['name'], query)
@@ -225,6 +248,8 @@ def help():
               clamda init - initialize new lambda job
               clamda deploy - zip & deploy current job
               clamda durations - view duration of jobs
+              clamda setenv KEY VAL - set lambda env var
+              clamda lsenv - list environmental vars
               clamda errors - find errors in cloudwatch logs
               clamda tail - spit out tailed logs from cloudwatch
               clamda invoke "{json}" - invoke the function with some json
