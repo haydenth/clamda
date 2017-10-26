@@ -167,7 +167,7 @@ def find_durations(name):
 def list_env_vars(name):
   resp = client.get_function(FunctionName=name)
   config = resp['Configuration']
-  env = config.get('Environment')
+  env = config.get('Environment', {})
   env_vars = env.get('Variables', {})
   for (k,v) in env_vars.items():
     print "ENV VARIABLE: %s = %s" % (k,v)
