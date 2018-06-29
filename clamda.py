@@ -22,6 +22,10 @@ import zipfile
 import StringIO
 import sys
 import base64
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 DOTFILE = '.clamda'
 DEFAULT_JOB = '''
@@ -40,14 +44,14 @@ def zipdir(path, ziph):
       ziph.write(os.path.join(root, file))
 
 def zip_full_directory():
-  print 'zipping up folder contents...'
+  logger.info('zipping up folder contents...')
   tmp_space = StringIO.StringIO()
   with zipfile.ZipFile(tmp_space, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
     zipdir('.', zf)
   return tmp_space.getvalue()
 
 def make_new_lambda_function():
-  print '''Looks like a dotfile doesn't exist for this folder, let's instantiate a job...'''
+  logger.info('''Looks like a dotfile doesn't exist for this folder, let's instantiate a job...''')
 
   # get roles
   role_data = iam_client.list_roles()
@@ -57,7 +61,7 @@ def make_new_lambda_function():
 
   i = 1
   for role in available_roles:
-    print "(%s) %s %s" % (i, role['RoleName'], role['Arn'])
+    logger.info("(%s) %s %s" % (i, role['RoleName'], role['Arn']))
     i += 1
 
   picked_role = int(raw_input("Pick IAM Role: "))
@@ -72,17 +76,17 @@ def make_new_lambda_function():
 
   # create the job if the creator wants to
   if create_job in ('Y', 'y'):
-    print "Creating empty job file.."
+    logger.info("Creating empty job file..")
     with open(job_name + '.py', 'w') as fh:
       fh.write(DEFAULT_JOB)
 
   # now zip up the contents of this folder
-  print 'zipping up folder contents...'
+  logger.info('zipping up folder contents...')
   tmp_space = StringIO.StringIO()
   with zipfile.ZipFile(tmp_space, mode='w') as zf:
     zipdir('.', zf)
 
-  print 'generating function on lambda'
+  logger.info('generating function on lambda')
   result = client.create_function(FunctionName=job_name,
                                   Runtime='python2.7',
                                   Role=available_roles[picked_role-1]['Arn'],
@@ -91,7 +95,7 @@ def make_new_lambda_function():
                                   Code={'ZipFile': zip_full_directory()},
                                   Description=description)
 
-  print 'writing out the .clamda file'
+  logger.info('writing out the .clamda file')
   clamda = {'name': job_name,
             'arn': result['FunctionArn']}
   with open(DOTFILE, 'w') as fh:
@@ -119,9 +123,7 @@ def invoke(configuration, text):
                      LogType='Tail',
                      Payload=text)
   base64_logs = base64.b64decode(inv['LogResult'])
-  print "----- LOGS ------- "
-  print base64_logs
-  print "----- RESULT ----- "
+  logger.info(base64_logs)
   print inv['Payload'].read()
 
 def find_errors(name):
@@ -159,7 +161,7 @@ def search_logs(name, filter_pattern):
     timestamp = event['timestamp'] / 1000
     human_date = datetime.datetime.fromtimestamp(int(timestamp))
     message = event['message'].strip()
-    print '\t'.join((human_date.strftime('%Y-%m-%d %H:%M:%S'), message))
+    logger.info('\t'.join((human_date.strftime('%Y-%m-%d %H:%M:%S'), message)))
 
 def find_durations(name):
   search_logs(name, 'REPORT RequestId')
@@ -170,7 +172,7 @@ def list_env_vars(name):
   env = config.get('Environment', {})
   env_vars = env.get('Variables', {})
   for (k,v) in env_vars.items():
-    print "ENV VARIABLE: %s = %s" % (k,v)
+    logger.info("ENV VARIABLE: %s = %s" % (k,v))
   return env_vars
 
 def set_env_var(name, key, value):
@@ -208,11 +210,11 @@ def main():
     sys.exit()
 
   if configuration is not False and argument in ('deploy'):
-    print 'deploying code for job %s' % configuration['name']
+    logger.info('deploying code for job %s' % configuration['name'])
     client.update_function_code(FunctionName=configuration['arn'],
                                 ZipFile=zip_full_directory())
   elif configuration is not False and argument in ('test'):
-    print 'Running tests for lambda job'
+    logger.info('Running tests for lambda job')
     run_tests(configuration)
   elif configuration is not False and argument in ('invoke'):
     if select.select([sys.stdin,],[],[],0.0)[0]:
@@ -223,7 +225,7 @@ def main():
   elif configuration is not False and argument in ('lsenv'):
     list_env_vars(configuration['name'])
   elif configuration is not False and argument in ('setenv'):
-    print "setting env var "
+    logger.info("setting env var ")
     var_key = addl_arguments[0]
     var_val = addl_arguments[1]
     set_env_var(configuration['name'], var_key, var_val)
@@ -231,14 +233,14 @@ def main():
     query = sys.argv[2]
     search_logs(configuration['name'], query)
   elif configuration is not False and argument in ('errors'):
-    print "searching logs for errors"
+    logger.info("searching logs for errors")
     find_errors(configuration['name'])
   elif configuration is not False and argument in ('durations', 'duration'):
     find_durations(configuration['name'])
   elif configuration is not False and argument in ('tail'):
     tail_logs(configuration['name'])
   elif configuration is False and argument in ('init'):
-    print 'initializing new lambda job'
+    logger.info('initializing new lambda job')
     make_new_lambda_function()
   else:
     help()
