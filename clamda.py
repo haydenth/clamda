@@ -19,7 +19,7 @@ import boto3
 import json
 import os
 import zipfile
-import StringIO
+from io import StringIO
 import sys
 import base64
 import logging
@@ -124,7 +124,7 @@ def invoke(configuration, text):
                      Payload=text)
   base64_logs = base64.b64decode(inv['LogResult'])
   logger.info(base64_logs)
-  print inv['Payload'].read()
+  print(inv['Payload'].read())
 
 def find_errors(name):
   search_logs(name, 'Error')
@@ -198,7 +198,7 @@ def tail_logs(name):
   events = logs['events']
   for event in events:
     event_count += 1
-    print event['message']
+    print(event['message'])
 
 def main():
   configuration = get_configuration()
@@ -246,7 +246,7 @@ def main():
     help()
 
 def help():
-  print '''Available command line arguments 
+  print('''Available command line arguments 
               clamda init - initialize new lambda job
               clamda deploy - zip & deploy current job
               clamda durations - view duration of jobs
@@ -256,7 +256,7 @@ def help():
               clamda tail - spit out tailed logs from cloudwatch
               clamda invoke "{json}" - invoke the function with some json
               clamda search "term" - search the logs for a custom search term
-              clamda test - run tests over assertions in tests/ folder'''
+              clamda test - run tests over assertions in tests/ folder''')
 
 if __name__ == '__main__':  
   main()
