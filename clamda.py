@@ -125,8 +125,9 @@ def invoke(configuration, text):
     LogType='Tail',
     Payload=text)
   base64_logs = base64.b64decode(inv['LogResult'])
-  logger.info(base64_logs)
-  print(inv['Payload'].read())
+  logger.info(base64_logs.decode('utf-8'))
+  response_payload = inv['Payload'].read().decode('utf-8')
+  print(response_payload)
 
 def find_errors(name):
   search_logs(name, 'Error')
@@ -139,7 +140,7 @@ def search_logs(name, filter_pattern):
   
   log_name = '/aws/lambda/' + name
   streams = client.describe_log_streams(logGroupName=log_name,
-                                        descending=True, orderBy='LastEventTime')
+    descending=True, orderBy='LastEventTime')
   all_streams = streams['logStreams']
   stream_ids = [a['logStreamName'] for a in all_streams]
   nextToken = True
