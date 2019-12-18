@@ -19,7 +19,7 @@ import boto3
 import json
 import os
 import zipfile
-from io import StringIO
+from io import BytesIO
 import sys
 import base64
 import logging
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 DOTFILE = '.clamda'
+DEFAULT_RUNTIME = 'python2.7'
 DEFAULT_JOB = '''
 
 def handler(event, context):
@@ -38,14 +39,15 @@ def handler(event, context):
 client = boto3.client('lambda')
 iam_client = boto3.client('iam')
 
+# helper function to zip up an entire folder
 def zipdir(path, ziph):
   for root, dirs, files in os.walk(path):
-    for file in files:
-      ziph.write(os.path.join(root, file))
+    for filename in files:
+      ziph.write(os.path.join(root, filename))
 
 def zip_full_directory():
   logger.info('zipping up folder contents...')
-  tmp_space = StringIO.StringIO()
+  tmp_space = BytesIO()
   with zipfile.ZipFile(tmp_space, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
     zipdir('.', zf)
   return tmp_space.getvalue()
@@ -57,17 +59,17 @@ def make_new_lambda_function():
   role_data = iam_client.list_roles()
   available_roles = role_data['Roles']
 
-  job_name = raw_input("Lambda Job Name: ")
+  job_name = input("Lambda Job Name: ")
 
   i = 1
   for role in available_roles:
     logger.info("(%s) %s %s" % (i, role['RoleName'], role['Arn']))
     i += 1
 
-  picked_role = int(raw_input("Pick IAM Role: "))
-  description = raw_input("Enter Description: ")
-  timeout = raw_input("Timeout (default = 3s): ")
-  create_job = raw_input("Would you like to create a new job file (Y/N)?: ")
+  picked_role = int(input("Pick IAM Role: "))
+  description = input("Enter Description: ")
+  timeout = input("Timeout (default = 3s): ")
+  create_job = input("Would you like to create a new job file (Y/N)?: ")
 
   try:
     timeout = int(timeout)
@@ -82,22 +84,22 @@ def make_new_lambda_function():
 
   # now zip up the contents of this folder
   logger.info('zipping up folder contents...')
-  tmp_space = StringIO.StringIO()
+  tmp_space = BytesIO()
   with zipfile.ZipFile(tmp_space, mode='w') as zf:
     zipdir('.', zf)
 
   logger.info('generating function on lambda')
   result = client.create_function(FunctionName=job_name,
-                                  Runtime='python2.7',
-                                  Role=available_roles[picked_role-1]['Arn'],
-                                  Handler=job_name+'.handler',
-                                  Timeout=timeout,
-                                  Code={'ZipFile': zip_full_directory()},
-                                  Description=description)
+    Runtime=DEFAULT_RUNTIME,
+    Role=available_roles[picked_role-1]['Arn'],
+    Handler=job_name+'.handler',
+    Timeout=timeout,
+    Code={'ZipFile': zip_full_directory()},
+    Description=description)
 
   logger.info('writing out the .clamda file')
   clamda = {'name': job_name,
-            'arn': result['FunctionArn']}
+    'arn': result['FunctionArn']}
   with open(DOTFILE, 'w') as fh:
     fh.write(json.dumps(clamda))
 
@@ -120,8 +122,8 @@ def run_tests():
 def invoke(configuration, text):
   ''' just invoke the function with some text '''
   inv = client.invoke(FunctionName=configuration['arn'],
-                     LogType='Tail',
-                     Payload=text)
+    LogType='Tail',
+    Payload=text)
   base64_logs = base64.b64decode(inv['LogResult'])
   logger.info(base64_logs)
   print(inv['Payload'].read())
