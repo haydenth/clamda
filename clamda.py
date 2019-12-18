@@ -221,7 +221,7 @@ def main():
     run_tests(configuration)
   elif configuration is not False and argument in ('invoke'):
     if select.select([sys.stdin,],[],[],0.0)[0]:
-      invoke_text = sys.stdin
+      invoke_text = sys.stdin.read()
     else:
       invoke_text = sys.argv[2]
     invoke(configuration, invoke_text)
